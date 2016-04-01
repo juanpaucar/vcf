@@ -1,4 +1,4 @@
-module Bio.VCF.Types where
+module Bio.VCF.Internal.Types where
 
 data VCF = VCF
           { header     :: Header
@@ -18,8 +18,20 @@ data Header = Header
               }
 
 data Record = Record
-              { chrom :: String --no white space
-              , pos   :: Integer
-              , id    :: [String] --no white space or semicolon
-              , ref   :: 
+              { chrom  :: String --no white space
+              , pos    :: Integer
+              , id     :: [String] --no white space or semicolon
+              , ref    :: String
+              , alt    :: [String]
+              , qual   :: Float
+              , filter :: [String]
+              , info   :: [String]
               }
+
+type InformationField = String
+type FilterField = String
+type FormatField = String
+type AlternativeAlleleField = String
+type ContigField = String
+type SampleField = String
+type PedigreeInformation = String
