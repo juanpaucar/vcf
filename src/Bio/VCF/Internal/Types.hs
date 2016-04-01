@@ -1,37 +1,39 @@
 module Bio.VCF.Internal.Types where
 
+import Data.ByteString (ByteString(..))
+
 data VCF = VCF
           { header     :: Header
-          , records    :: [Record]
-          }
+          , variations :: [Variation]
+          } deriving Show
 
 data Header = Header
-              { fileFormat              :: String
+              { fileFormat              :: ByteString
               , informationFields       :: [InformationField]
               , filterFields            :: [FilterField]
               , formatFields            :: [FormatField]
               , alternativeAlleleFields :: [AlternativeAlleleField]
-              , assemblyField           :: String
+              , assemblyField           :: ByteString
               , contigFields            :: [ContigField]
               , sampleFields            :: [SampleField]
               , pedigreeFields          :: PedigreeInformation
-              }
+              } deriving Show
 
-data Record = Record
-              { chrom  :: String --no white space
+data Variation = Variation
+              { chrom  :: ByteString --no white space
               , pos    :: Integer
-              , id     :: [String] --no white space or semicolon
-              , ref    :: String
-              , alt    :: [String]
+              , id     :: [ByteString] --no white space or semicolon
+              , ref    :: ByteString
+              , alt    :: [ByteString]
               , qual   :: Float
-              , filter :: [String]
-              , info   :: [String]
-              }
+              , filter :: [ByteString]
+              , info   :: [ByteString]
+              } deriving Show
 
-type InformationField = String
-type FilterField = String
-type FormatField = String
-type AlternativeAlleleField = String
-type ContigField = String
-type SampleField = String
-type PedigreeInformation = String
+type InformationField = ByteString
+type FilterField = ByteString
+type FormatField = ByteString
+type AlternativeAlleleField = ByteString
+type ContigField = ByteString
+type SampleField = ByteString
+type PedigreeInformation = ByteString
