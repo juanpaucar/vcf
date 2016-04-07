@@ -22,11 +22,11 @@ data Header = Header
 data Variation = Variation
               { chrom  :: ByteString --no white space
               , pos    :: Integer
-              , id     :: [ByteString] --no white space or semicolon
+              , idx    :: [ByteString] --no white space or semicolon
               , ref    :: ByteString
               , alt    :: [ByteString]
               , qual   :: Float
-              , filter :: [ByteString]
+              , filt   :: [ByteString]
               , info   :: [ByteString]
               } deriving Show
 
