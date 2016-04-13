@@ -2,6 +2,7 @@
 
 module Bio.VCF.Parser.Parser where
 
+import Control.Applicative (liftA2)
 import Data.Attoparsec.ByteString
 import qualified Data.Attoparsec.ByteString.Char8 as AC8
 import qualified Data.ByteString as B
@@ -18,41 +19,37 @@ isTab c = c == 9
 endOfLine :: Word8 -> Bool
 endOfLine c = c == 13 || c == 10
 
-parseMetaInformation :: Parser B.ByteString 
-parseMetaInformation = do
-  AC8.char '#'
-  AC8.char '#'
-  rest <- takeByteString
-  return rest
+parseMetaInformation :: Parser B.ByteString
+parseMetaInformation = AC8.char '#' *>
+                       AC8.char '#' *>
+                       takeByteString
 
 parseFormatLine :: Parser B.ByteString
-parseFormatLine = do
-  AC8.char '#'
-  next <- fmap BS8.singleton (AC8.notChar '#')
-  rest <- takeByteString
-  return $ B.append next rest
+parseFormatLine = AC8.char '#' *>
+                  liftA2 B.append
+                         (BS8.singleton `fmap` AC8.notChar '#')
+                         takeByteString
 
-parsePatients :: Parser [B.ByteString]
-parsePatients = do
-  AC8.char '#'
-  string "CHROM"
-  skipWhile tabOrSpace
-  string "POS"
-  skipWhile tabOrSpace
-  string "ID"
-  skipWhile tabOrSpace
-  string "REF"
-  skipWhile tabOrSpace
-  string "ALT"
-  skipWhile tabOrSpace
-  string "QUAL"
-  skipWhile tabOrSpace
-  string "FILTER"
-  skipWhile tabOrSpace
-  string "INFO"
-  skipWhile tabOrSpace
-  string "FORMAT"
-  skipWhile tabOrSpace
-  --TODO use `sepBy` in this part instead of words to gain performance
-  names <- fmap BS8.words $ takeTill endOfLine
-  return names
+parsePatients :: Parser [Patient]
+parsePatients = AC8.char '#' *>
+                string "CHROM" *>
+                skipWhile tabOrSpace *>
+                string "POS" *>
+                skipWhile tabOrSpace *>
+                string "ID" *>
+                skipWhile tabOrSpace *>
+                string "REF" *>
+                skipWhile tabOrSpace *>
+                string "ALT" *>
+                skipWhile tabOrSpace *>
+                string "QUAL" *>
+                skipWhile tabOrSpace *>
+                string "FILTER" *>
+                skipWhile tabOrSpace *>
+                string "INFO" *>
+                skipWhile tabOrSpace *>
+                string "FORMAT" *>
+                skipWhile tabOrSpace *>
+--TODO use `sepBy` in this part instead of words to gain performance
+                ((fmap . fmap) Patient $
+                    BS8.words `fmap` takeTill endOfLine)

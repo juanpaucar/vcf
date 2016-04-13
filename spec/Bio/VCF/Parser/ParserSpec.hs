@@ -4,6 +4,7 @@ module Bio.VCF.Parser.ParserSpec where
 import Test.Hspec
 
 import Bio.VCF.Parser.Parser
+import Bio.VCF.Internal.Types
 import Data.Attoparsec.ByteString
 import Data.ByteString (ByteString)
 
@@ -36,7 +37,7 @@ spec = do
     it "should return a list with the names of the patients" $ do
       let result = parseOnly parsePatients
            "#CHROM  POS ID  REF ALT QUAL  FILTER  INFO  FORMAT patient1 patient2 patient3"
-      result `shouldBe` Right ["patient1", "patient2", "patient3"]
+      result `shouldBe` Right [Patient "patient1", Patient "patient2", Patient "patient3"]
 
     it "should return an empty list if there is no information about a pacient" $ do
       let result = parseOnly parsePatients
@@ -46,11 +47,11 @@ spec = do
     it "should ignore whitespaces at the end of the input" $ do
       let result = parseOnly parsePatients
            "#CHROM  POS ID  REF ALT QUAL  FILTER  INFO  FORMAT patient1 patient2 patient3        "
-      result `shouldBe` Right ["patient1", "patient2", "patient3"]
+      result `shouldBe` Right [Patient "patient1", Patient "patient2", Patient "patient3"]
 
     it "should ignore multiple spaces between during the parsing" $ do
       let result = parseOnly parsePatients
            "#CHROM  POS ID  REF ALT QUAL  FILTER  INFO  FORMAT    patient1   patient2        patient3        "
-      result `shouldBe` Right ["patient1", "patient2", "patient3"]
+      result `shouldBe` Right [Patient "patient1", Patient "patient2", Patient "patient3"]
 
 
