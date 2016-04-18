@@ -54,4 +54,17 @@ spec = do
            "#CHROM  POS ID  REF ALT QUAL  FILTER  INFO  FORMAT    patient1   patient2        patient3        "
       result `shouldBe` Right [Patient "patient1", Patient "patient2", Patient "patient3"]
 
+  describe "parseChrom" $ do
+    it "should parse an <ID>" $ do
+      let result = parseOnly parseChrom "<ID>"
+      result `shouldBe` Right "<ID>"
+
+    it "should take a string or an <ID>" $ do
+      let result = parseOnly parseChrom "12"
+      result `shouldBe` Right "12"
+
+    it "should ignore whitespaces" $ do
+      let result = parseOnly parseChrom "23 "
+      result `shouldBe` Right "23"
+
 

@@ -2,7 +2,7 @@
 
 module Bio.VCF.Parser.Parser where
 
-import Control.Applicative (liftA2)
+import Control.Applicative (liftA2, (<|>))
 import Data.Attoparsec.ByteString
 import qualified Data.Attoparsec.ByteString.Char8 as AC8
 import qualified Data.ByteString as B
@@ -15,6 +15,9 @@ tabOrSpace c = c == 32 || c == 9
 
 isTab :: Word8 -> Bool
 isTab c = c == 9
+
+isSpace :: Word8 -> Bool
+isSpace c = c == 32
 
 endOfLine :: Word8 -> Bool
 endOfLine c = c == 13 || c == 10
@@ -53,3 +56,6 @@ parsePatients = AC8.char '#' *>
 --TODO use `sepBy` in this part instead of words to gain performance
                 ((fmap . fmap) Patient $
                     BS8.words `fmap` takeTill endOfLine)
+
+parseChrom :: Parser B.ByteString
+parseChrom = try (string  "<ID>") <|> takeTill isSpace
