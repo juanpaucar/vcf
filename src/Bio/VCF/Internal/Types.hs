@@ -30,6 +30,7 @@ data Variation = Variation
               , info   :: [ByteString]
               } deriving Show
 
+newtype Patient = Patient ByteString deriving (Eq, Show)
 type InformationField = ByteString
 type FilterField = ByteString
 type FormatField = ByteString

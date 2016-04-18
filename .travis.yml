@@ -1,6 +1,4 @@
 env:
-  global:
-    - secure: Cp+kl0j79zeXCj1zZN6gbU/8RZW7aXXDOlbKSNLa338Io0LwmSG+L2beazhhw7gkB4qFf9s9seJzjgx0jJaV1jkizcRunQC/iw7q6Y4wBr6jeQJqGKGyzaKyTY3dTwN20V/NnofRxKKL2v0QX1kUx5CB34wlprq/wO9nJeIDR1U=
   matrix:
     - GHC_VERSION=7.10.1 CABAL_VERSION=1.22
 
