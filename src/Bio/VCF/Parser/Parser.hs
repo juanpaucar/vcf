@@ -13,7 +13,7 @@ import Data.Word (Word8)
 import Bio.VCF.Internal.Types
 
 tabOrSpace :: Word8 -> Bool
-tabOrSpace c = c == 32 || c == 9
+tabOrSpace c = isTab c || isSpace c
 
 isTab :: Word8 -> Bool
 isTab c = c == 9
@@ -22,7 +22,7 @@ isSpace :: Word8 -> Bool
 isSpace c = c == 32
 
 isNumber :: Word8 -> Bool
-isNumber c = c>=48 && c<=57
+isNumber c = c >= 48 && c <= 57
 
 isBase :: Word8 -> Bool
 isBase c = c == 65 || c == 97  || -- A or a
@@ -30,6 +30,9 @@ isBase c = c == 65 || c == 97  || -- A or a
            c == 71 || c == 103 || -- G or g
            c == 84 || c == 116 || -- T or t
            c == 78 || c == 110    -- N or n
+
+isBaseOrDeletion :: Word8 -> Bool
+isBaseOrDeletion c = isBase c || c == 42 || c == 44 -- or '*' and ','
 
 endOfLine :: Word8 -> Bool
 endOfLine c = c == 13 || c == 10
@@ -82,3 +85,8 @@ parseID = (BS8.split ':') `fmap` takeTill isSpace
 
 parseRef :: Parser B.ByteString
 parseRef = takeWhile1 isBase
+
+parseAlt :: Parser [B.ByteString]
+parseAlt = try (makeList `fmap` string "<ID>") <|>
+           (BS8.split ',') `fmap` takeWhile1 isBaseOrDeletion
+  where makeList x = x : []

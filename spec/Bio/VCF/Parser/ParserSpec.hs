@@ -106,4 +106,15 @@ spec = do
       let result = parseOnly parseRef "A "
       result `shouldBe` Right "A"
 
+  describe "parseAlt" $ do
+    it "should parse an <ID>" $ do
+      let result = parseOnly parseAlt "<ID> "
+      result `shouldBe` Right ["<ID>"]
 
+    it "should parse multiple alterations" $ do
+      let result = parseOnly parseAlt "ACTG,GGT,AGTCCC  "
+      result `shouldBe` Right ["ACTG", "GGT", "AGTCCC"]
+
+    it "should parse a deletion '*'" $ do
+      let result = parseOnly parseAlt "* "
+      result `shouldBe` Right ["*"]
