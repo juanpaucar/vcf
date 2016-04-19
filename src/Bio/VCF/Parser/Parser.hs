@@ -24,6 +24,9 @@ isSpace c = c == 32
 isNumber :: Word8 -> Bool
 isNumber c = c >= 48 && c <= 57
 
+isFloatNumber :: Word8 -> Bool
+isFloatNumber c = isNumber c || c == 46 -- '.'
+
 isBase :: Word8 -> Bool
 isBase c = c == 65 || c == 97  || -- A or a
            c == 67 || c == 99  || -- C or c
@@ -90,3 +93,6 @@ parseAlt :: Parser [B.ByteString]
 parseAlt = try (makeList `fmap` string "<ID>") <|>
            (BS8.split ',') `fmap` takeWhile1 isBaseOrDeletion
   where makeList x = x : []
+
+parseQual :: Parser Float
+parseQual = (read . BS8.unpack) `fmap` takeWhile1 isFloatNumber

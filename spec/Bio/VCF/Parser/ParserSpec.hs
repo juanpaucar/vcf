@@ -118,3 +118,16 @@ spec = do
     it "should parse a deletion '*'" $ do
       let result = parseOnly parseAlt "* "
       result `shouldBe` Right ["*"]
+
+  describe "parseQual" $ do
+    it "should parse valid numbers" $ do
+      let result = parseOnly parseQual "123.123 "
+      result `shouldBe` Right 123.123
+
+    it "should parse integer values as float" $ do
+      let result = parseOnly parseQual "123  "
+      result `shouldBe` Right 123
+
+    it "should fail to parse other than numbers" $ do
+      let result = parseOnly parseQual "ads"
+      result `shouldBe` Left "Failed reading: takeWhile1"
