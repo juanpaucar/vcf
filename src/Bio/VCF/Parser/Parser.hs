@@ -5,8 +5,10 @@ module Bio.VCF.Parser.Parser where
 import Control.Applicative (liftA2, (<|>))
 import Data.Attoparsec.ByteString
 import qualified Data.Attoparsec.ByteString.Char8 as AC8
+import Data.Bits (shiftL)
+import Data.Char (ord)
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as BS8 (singleton, words)
+import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, pack, split)
 import Data.Word (Word8)
 import Bio.VCF.Internal.Types
 
@@ -18,6 +20,16 @@ isTab c = c == 9
 
 isSpace :: Word8 -> Bool
 isSpace c = c == 32
+
+isNumber :: Word8 -> Bool
+isNumber c = c>=48 && c<=57
+
+isBase :: Word8 -> Bool
+isBase c = c == 65 || c == 97  || -- A or a
+           c == 67 || c == 99  || -- C or c
+           c == 71 || c == 103 || -- G or g
+           c == 84 || c == 116 || -- T or t
+           c == 78 || c == 110    -- N or n
 
 endOfLine :: Word8 -> Bool
 endOfLine c = c == 13 || c == 10
@@ -59,3 +71,14 @@ parsePatients = AC8.char '#' *>
 
 parseChrom :: Parser B.ByteString
 parseChrom = try (string  "<ID>") <|> takeTill isSpace
+
+{-We don't care about the additional characters, it should be delegated to
+ - the whole parser-}
+parsePosition :: Parser Int
+parsePosition =  (read . BS8.unpack) `fmap` takeWhile1 isNumber
+
+parseID :: Parser [B.ByteString]
+parseID = (BS8.split ':') `fmap` takeTill isSpace
+
+parseRef :: Parser B.ByteString
+parseRef = takeWhile1 isBase
