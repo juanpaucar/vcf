@@ -141,4 +141,13 @@ spec = do
       let result = parseOnly parseFilter "q10;s50 "
       result `shouldBe` Right ["q10", "s50"]
 
+  describe "parseInformation" $ do
+    it "should stop at a whitespace" $ do
+      let result = parseOnly parseInformation "AC=2;AF=1.00;AN=2;DB;DP=11 "
+      result `shouldBe` Right ["AC=2", "AF=1.00", "AN=2", "DB", "DP=11"]
+
+    it "should split all the results with the ';'" $ do
+      let result = parseOnly parseInformation "AC=2;AF=1.00;AN=2;DB;DP=11; "
+      result `shouldBe` Right ["AC=2", "AF=1.00", "AN=2", "DB", "DP=11", ""]
+
 

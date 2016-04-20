@@ -73,4 +73,4 @@ parseFilter = try (makeList `fmap` string "PASS") <|>
   where makeList x = x : []
 
 parseInformation :: Parser [B.ByteString]
-parseInformation = undefined
+parseInformation = (BS8.split ';') `fmap` takeTill isSpace
