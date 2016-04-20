@@ -5,11 +5,8 @@ module Bio.VCF.Parser.Parser where
 import Control.Applicative (liftA2, (<|>))
 import Data.Attoparsec.ByteString
 import qualified Data.Attoparsec.ByteString.Char8 as AC8
-import Data.Bits (shiftL)
-import Data.Char (ord)
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, pack, split)
-import Data.Word (Word8)
+import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, split)
 import Bio.VCF.Internal.Types
 import Bio.VCF.Parser.Helpers
 
@@ -75,4 +72,5 @@ parseFilter = try (makeList `fmap` string "PASS") <|>
               (BS8.split ';') `fmap` takeTill isSpace
   where makeList x = x : []
 
-
+parseInformation :: Parser [B.ByteString]
+parseInformation = undefined

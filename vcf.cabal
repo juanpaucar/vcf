@@ -16,7 +16,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-   exposed-modules:  Bio.VCF.Internal.Types,
+  ghc-options : -Wall -O4
+  exposed-modules:  Bio.VCF.Internal.Types,
                      Bio.VCF.Parser.Parser,
                      Bio.VCF.Parser.Helpers
   -- other-modules:       

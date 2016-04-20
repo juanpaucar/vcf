@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Bio.VCF.Parser.ParserSpec where
 
 import Test.Hspec
@@ -6,7 +7,6 @@ import Test.Hspec
 import Bio.VCF.Parser.Parser
 import Bio.VCF.Internal.Types
 import Data.Attoparsec.ByteString
-import Data.ByteString (ByteString)
 
 spec :: Spec
 spec = do
