@@ -96,3 +96,9 @@ parseAlt = try (makeList `fmap` string "<ID>") <|>
 
 parseQual :: Parser Float
 parseQual = (read . BS8.unpack) `fmap` takeWhile1 isFloatNumber
+
+parseFilter :: Parser [B.ByteString]
+parseFilter = try (makeList `fmap` string "PASS") <|>
+              (BS8.split ';') `fmap` takeTill isSpace
+
+  where makeList x = x : []

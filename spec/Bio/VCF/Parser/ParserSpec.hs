@@ -131,3 +131,14 @@ spec = do
     it "should fail to parse other than numbers" $ do
       let result = parseOnly parseQual "ads"
       result `shouldBe` Left "Failed reading: takeWhile1"
+
+  describe "parseFilter" $ do
+    it "should parse a PASS filter" $ do
+      let result = parseOnly parseFilter "PASS "
+      result `shouldBe` Right ["PASS"]
+
+    it "should parse not passed filters" $ do
+      let result = parseOnly parseFilter "q10;s50 "
+      result `shouldBe` Right ["q10", "s50"]
+
+
