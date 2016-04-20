@@ -11,34 +11,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, pack, split)
 import Data.Word (Word8)
 import Bio.VCF.Internal.Types
-
-tabOrSpace :: Word8 -> Bool
-tabOrSpace c = isTab c || isSpace c
-
-isTab :: Word8 -> Bool
-isTab c = c == 9
-
-isSpace :: Word8 -> Bool
-isSpace c = c == 32
-
-isNumber :: Word8 -> Bool
-isNumber c = c >= 48 && c <= 57
-
-isFloatNumber :: Word8 -> Bool
-isFloatNumber c = isNumber c || c == 46 -- '.'
-
-isBase :: Word8 -> Bool
-isBase c = c == 65 || c == 97  || -- A or a
-           c == 67 || c == 99  || -- C or c
-           c == 71 || c == 103 || -- G or g
-           c == 84 || c == 116 || -- T or t
-           c == 78 || c == 110    -- N or n
-
-isBaseOrDeletion :: Word8 -> Bool
-isBaseOrDeletion c = isBase c || c == 42 || c == 44 -- or '*' and ','
-
-endOfLine :: Word8 -> Bool
-endOfLine c = c == 13 || c == 10
+import Bio.VCF.Parser.Helpers
 
 parseMetaInformation :: Parser B.ByteString
 parseMetaInformation = AC8.char '#' *>
@@ -100,5 +73,6 @@ parseQual = (read . BS8.unpack) `fmap` takeWhile1 isFloatNumber
 parseFilter :: Parser [B.ByteString]
 parseFilter = try (makeList `fmap` string "PASS") <|>
               (BS8.split ';') `fmap` takeTill isSpace
-
   where makeList x = x : []
+
+
