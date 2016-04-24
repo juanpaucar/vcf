@@ -20,14 +20,15 @@ data Header = Header
               } deriving Show
 
 data Variation = Variation
-              { chrom  :: ByteString --no white space
+              { chrom  :: ByteString
               , pos    :: Integer
-              , idx    :: [ByteString] --no white space or semicolon
+              , idx    :: [ByteString]
               , ref    :: ByteString
               , alt    :: [ByteString]
               , qual   :: Float
               , filt   :: [ByteString]
               , info   :: [ByteString]
+              , format :: Maybe [ByteString]
               } deriving Show
 
 newtype Patient = Patient ByteString deriving (Eq, Show)

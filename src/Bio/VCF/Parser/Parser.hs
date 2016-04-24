@@ -74,3 +74,7 @@ parseFilter = try (makeList `fmap` string "PASS") <|>
 
 parseInformation :: Parser [B.ByteString]
 parseInformation = (BS8.split ';') `fmap` takeTill isSpace
+
+parseFormat :: Parser (Maybe [B.ByteString])
+parseFormat = try ((Just . BS8.split ':') `fmap` takeWhile1 notSpace) <|>
+                pure Nothing

@@ -69,7 +69,7 @@ spec = do
 
   describe "parsePosition" $ do
     it "should parse a valid number" $ do
-      let result = parseOnly parsePosition "1123123123"
+      let result = parseOnly parsePosition "1123123123  "
       result `shouldBe` Right 1123123123
 
     it "should fail when an invalid input is given" $ do
@@ -150,4 +150,11 @@ spec = do
       let result = parseOnly parseInformation "AC=2;AF=1.00;AN=2;DB;DP=11; "
       result `shouldBe` Right ["AC=2", "AF=1.00", "AN=2", "DB", "DP=11", ""]
 
+  describe "parseFormat" $ do
+    it "should return a list with the genotypes" $ do
+      let result = parseOnly parseFormat "GT:AD:DP:GQ:PL  "
+      result `shouldBe` Right (Just ["GT", "AD", "DP", "GQ", "PL"])
 
+    it "should return Nothing when there's no input" $ do
+      let result = parseOnly parseFormat ""
+      result `shouldBe` Right (Nothing)

@@ -11,6 +11,9 @@ isTab c = c == 9
 isSpace :: Word8 -> Bool
 isSpace c = c == 32
 
+notSpace :: Word8 -> Bool
+notSpace c = c /= 32
+
 isNumber :: Word8 -> Bool
 isNumber c = c >= 48 && c <= 57
 
@@ -29,5 +32,3 @@ isBaseOrDeletion c = isBase c || c == 42 || c == 44 -- or '*' and ','
 
 endOfLine :: Word8 -> Bool
 endOfLine c = c == 13 || c == 10
-
-
