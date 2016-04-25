@@ -3,9 +3,9 @@
 module Bio.VCF.Parser.Parser where
 
 import Control.Applicative (liftA2, (<|>))
-import Data.Attoparsec.ByteString
-import qualified Data.Attoparsec.ByteString.Char8 as AC8
-import qualified Data.ByteString as B
+import Data.Attoparsec.ByteString (try, takeWhile1, takeByteString, skipWhile, Parser, string, takeTill)
+import qualified Data.Attoparsec.ByteString.Char8 as AC8 (notChar, char)
+import qualified Data.ByteString as B (ByteString, append)
 import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, split)
 import Text.Read (readMaybe)
 import Bio.VCF.Internal.Types

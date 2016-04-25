@@ -1,4 +1,11 @@
-module Bio.VCF.Internal.Types where
+module Bio.VCF.Internal.Types
+( VCF(..)
+, Header(..)
+, Variation(..)
+, Genotypes
+, Patient(..)
+) where
+
 
 import Data.ByteString (ByteString)
 
