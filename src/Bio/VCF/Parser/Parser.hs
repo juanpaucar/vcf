@@ -46,7 +46,7 @@ parsePatients = AC8.char '#' *>
                     BS8.words `fmap` takeTill endOfLine)
 
 parseChrom :: Parser B.ByteString
-parseChrom = try (string  "<ID>") <|> takeTill isSpace
+parseChrom = try (string  "<ID>") <|> takeWhile1 notSpace
 
 {-We don't care about the additional characters, it should be delegated to
  - the whole parser-}
@@ -54,7 +54,7 @@ parsePosition :: Parser Int
 parsePosition =  (read . BS8.unpack) `fmap` takeWhile1 isNumber
 
 parseID :: Parser [B.ByteString]
-parseID = (BS8.split ':') `fmap` takeTill isSpace
+parseID = (BS8.split ':') `fmap` takeWhile1 notSpace
 
 parseRef :: Parser B.ByteString
 parseRef = takeWhile1 isBase
@@ -69,12 +69,15 @@ parseQual = (read . BS8.unpack) `fmap` takeWhile1 isFloatNumber
 
 parseFilter :: Parser [B.ByteString]
 parseFilter = try (makeList `fmap` string "PASS") <|>
-              (BS8.split ';') `fmap` takeTill isSpace
+              (BS8.split ';') `fmap` takeWhile1 notSpace
   where makeList x = x : []
 
 parseInformation :: Parser [B.ByteString]
-parseInformation = (BS8.split ';') `fmap` takeTill isSpace
+parseInformation = (BS8.split ';') `fmap` takeWhile1 notSpace
 
 parseFormat :: Parser (Maybe [B.ByteString])
 parseFormat = try ((Just . BS8.split ':') `fmap` takeWhile1 notSpace) <|>
                 pure Nothing
+
+parseGenotypes :: Parser [Genotypes]
+parseGenotypes = ((fmap (BS8.split ':')) . BS8.split ' ') `fmap` takeByteString

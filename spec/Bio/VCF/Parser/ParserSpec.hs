@@ -158,3 +158,20 @@ spec = do
     it "should return Nothing when there's no input" $ do
       let result = parseOnly parseFormat ""
       result `shouldBe` Right (Nothing)
+
+  describe "parseGenotypes" $ do
+    it "should return a list with the genotypes which can be a list too" $ do
+      let result = parseOnly parseGenotypes
+           "1/1:6,5:11:14.79:300,15,0 0/1:6,8:11:14.79:300,15,0 1/1:6,5:11:14.79:300,15,0"
+      result `shouldBe` Right [ ["1/1","6,5","11","14.79","300,15,0"]
+                              , ["0/1","6,8","11","14.79","300,15,0"]
+                              , ["1/1","6,5","11","14.79","300,15,0"]
+                              ]
+
+    it "should return a list with genotypes which could be single values" $ do
+      let result = parseOnly parseGenotypes "0 0 0 0 0 0 0"
+      result `shouldBe` Right [["0"], ["0"], ["0"], ["0"], ["0"], ["0"], ["0"]]
+
+    it "should return an empty list id there are no phenotypes" $ do
+      let result = parseOnly parseGenotypes ""
+      result `shouldBe` Right []

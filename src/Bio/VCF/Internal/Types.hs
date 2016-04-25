@@ -39,3 +39,4 @@ type AlternativeAlleleField = ByteString
 type ContigField = ByteString
 type SampleField = ByteString
 type PedigreeInformation = ByteString
+type Genotypes = [ByteString]
