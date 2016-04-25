@@ -122,11 +122,11 @@ spec = do
   describe "parseQual" $ do
     it "should parse valid numbers" $ do
       let result = parseOnly parseQual "123.123 "
-      result `shouldBe` Right 123.123
+      result `shouldBe` Right (Just 123.123)
 
     it "should parse integer values as float" $ do
       let result = parseOnly parseQual "123  "
-      result `shouldBe` Right 123
+      result `shouldBe` Right (Just 123)
 
     it "should fail to parse other than numbers" $ do
       let result = parseOnly parseQual "ads"
@@ -175,3 +175,55 @@ spec = do
     it "should return an empty list id there are no phenotypes" $ do
       let result = parseOnly parseGenotypes ""
       result `shouldBe` Right []
+
+  describe "parseVariation"  $ do
+    it "should be able to parse an entire line of variations for one patient" $ do
+      let result = parseOnly parseVariation
+           "1 866511  rs60722469  C CCCCT 258.62  PASS  AC=2;AF=1.00;AN=2;DB;DP=11;FS=0.000;HRun=0;HaplotypeScore=41.3338;MQ0=0;MQ=61.94;QD=23.51;set=variant GT:AD:DP:GQ:PL  1/1:6,5:11:14.79:300,15,0"
+      result `shouldBe` Right ( Variation { chrom = "1"
+                                          , pos = 866511
+                                          , idx = ["rs60722469"]
+                                          , ref = "C"
+                                          , alt = ["CCCCT"]
+                                          , qual = Just 258.62
+                                          , filt = ["PASS"]
+                                          , info = ["AC=2","AF=1.00","AN=2","DB","DP=11","FS=0.000","HRun=0","HaplotypeScore=41.3338","MQ0=0","MQ=61.94","QD=23.51","set=variant"]
+                                          , format = Just ["GT","AD","DP","GQ","PL"]
+                                          }
+                              , [ ["1/1","6,5","11","14.79","300,15,0"]
+                                ]
+                              )
+
+    it "should parse a variation for multiple pacients" $ do
+      let result = parseOnly parseVariation
+           "GL000192.1  139953  . CTG C 585.64  PASS  AC=2;AF=1.00;AN=2;DP=22;FS=0.000;HRun=0;HaplotypeScore=84.4235;MQ0=8;MQ=39.34;QD=19.52;set=variant  GT:AD:DP:GQ:PL  1/1:10,18:22:59.82:628,60,0 1/1:6,5:11:14.79:300,15,0"
+      result `shouldBe` Right ( Variation { chrom = "GL000192.1"
+                                          , pos = 139953
+                                          , idx = ["."]
+                                          , ref = "CTG"
+                                          , alt = ["C"]
+                                          , qual = Just 585.64
+                                          , filt = ["PASS"]
+                                          , info = ["AC=2","AF=1.00","AN=2","DP=22","FS=0.000","HRun=0","HaplotypeScore=84.4235","MQ0=8","MQ=39.34","QD=19.52","set=variant"]
+                                          , format = Just ["GT","AD","DP","GQ","PL"]
+                                          }
+                              , [ ["1/1","10,18","22","59.82","628,60,0"]
+                                , ["1/1","6,5","11","14.79","300,15,0"]
+                                ]
+                              )
+
+    it "should be able to parse formats like those associated to diseases" $ do
+      let result = parseOnly parseVariation
+           "1 1014143 rs786201005 C T . . dbSNP_146;TSA=SNV;E_Phenotype_or_Disease;CLIN_pathogenic;AA=C"
+      result `shouldBe` Right ( Variation { chrom = "1"
+                                          , pos = 1014143
+                                          , idx = ["rs786201005"]
+                                          , ref = "C"
+                                          , alt = ["T"]
+                                          , qual = Nothing
+                                          , filt = ["."]
+                                          , info = ["dbSNP_146","TSA=SNV","E_Phenotype_or_Disease","CLIN_pathogenic","AA=C"]
+                                          , format = Nothing
+                                          }
+                              , []
+                              )

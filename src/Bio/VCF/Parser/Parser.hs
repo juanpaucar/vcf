@@ -7,6 +7,7 @@ import Data.Attoparsec.ByteString
 import qualified Data.Attoparsec.ByteString.Char8 as AC8
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, split)
+import Text.Read (readMaybe)
 import Bio.VCF.Internal.Types
 import Bio.VCF.Parser.Helpers
 
@@ -64,8 +65,8 @@ parseAlt = try (makeList `fmap` string "<ID>") <|>
            (BS8.split ',') `fmap` takeWhile1 isBaseOrDeletion
   where makeList x = x : []
 
-parseQual :: Parser Float
-parseQual = (read . BS8.unpack) `fmap` takeWhile1 isFloatNumber
+parseQual :: Parser (Maybe Float)
+parseQual = (readMaybe . BS8.unpack) `fmap` takeWhile1 isFloatNumber
 
 parseFilter :: Parser [B.ByteString]
 parseFilter = try (makeList `fmap` string "PASS") <|>
@@ -81,3 +82,30 @@ parseFormat = try ((Just . BS8.split ':') `fmap` takeWhile1 notSpace) <|>
 
 parseGenotypes :: Parser [Genotypes]
 parseGenotypes = ((fmap (BS8.split ':')) . BS8.split ' ') `fmap` takeByteString
+
+parseVariation :: Parser (Variation, [Genotypes])
+parseVariation = do
+  vChrom <- parseChrom
+  skipWhile isSpace
+  vPos <- parsePosition
+  skipWhile isSpace
+  vId <- parseID
+  skipWhile isSpace
+  vRef <- parseRef
+  skipWhile isSpace
+  vAlt <- parseAlt
+  skipWhile isSpace
+  vQual <- parseQual
+  skipWhile isSpace
+  vFilter <- parseFilter
+  skipWhile isSpace
+  vInfo <- parseInformation
+  skipWhile isSpace
+  maybeFormat <- parseFormat
+  let variation = Variation vChrom vPos vId vRef vAlt vQual vFilter vInfo Nothing
+  case maybeFormat of
+    Just formats -> do
+      skipWhile isSpace
+      genotypes <- parseGenotypes
+      return (variation{format = Just formats}, genotypes)
+    Nothing -> return (variation, [])
