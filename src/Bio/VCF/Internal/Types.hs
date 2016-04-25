@@ -1,6 +1,13 @@
-module Bio.VCF.Internal.Types where
+module Bio.VCF.Internal.Types
+( VCF(..)
+, Header(..)
+, Variation(..)
+, Genotypes
+, Patient(..)
+) where
 
-import Data.ByteString (ByteString(..))
+
+import Data.ByteString (ByteString)
 
 data VCF = VCF
           { header     :: Header
@@ -21,15 +28,15 @@ data Header = Header
 
 data Variation = Variation
               { chrom  :: ByteString
-              , pos    :: Integer
+              , pos    :: Int
               , idx    :: [ByteString]
               , ref    :: ByteString
               , alt    :: [ByteString]
-              , qual   :: Float
+              , qual   :: Maybe Float
               , filt   :: [ByteString]
               , info   :: [ByteString]
               , format :: Maybe [ByteString]
-              } deriving Show
+              } deriving (Show, Eq)
 
 newtype Patient = Patient ByteString deriving (Eq, Show)
 type InformationField = ByteString

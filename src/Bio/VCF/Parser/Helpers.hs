@@ -1,4 +1,14 @@
-module Bio.VCF.Parser.Helpers where
+module Bio.VCF.Parser.Helpers
+( tabOrSpace
+, isTab
+, isSpace
+, notSpace
+, isNumber
+, isFloatNumber
+, isBase
+, isBaseOrDeletion
+, endOfLine
+) where
 
 import Data.Word (Word8)
 
