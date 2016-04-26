@@ -7,6 +7,9 @@ import Test.Hspec
 import Bio.VCF.Parser.Parser
 import Bio.VCF.Internal.Types
 import Data.Attoparsec.ByteString
+import Data.Either (rights)
+import qualified Data.ByteString.Char8 as BS8
+import qualified Data.ByteString as BS (readFile)
 
 spec :: Spec
 spec = do
@@ -227,3 +230,27 @@ spec = do
                                           }
                               , []
                               )
+
+    it "should work for tabs as separation" $ do
+      let result = parseOnly parseVariation
+           "1\t866511\trs60722469\tC\tCCCCT\t258.62\tPASS\tAC=2;AF=1.00;AN=2;DB;DP=11;FS=0.000;HRun=0;HaplotypeScore=41.3338;MQ0=0;MQ=61.94;QD=23.51;set=variant\tGT:AD:DP:GQ:PL\t1/1:6,5:11:14.79:300,15,0"
+      result `shouldBe` Right ( Variation { chrom = "1"
+                                          , pos = 866511
+                                          , idx = ["rs60722469"]
+                                          , ref = "C"
+                                          , alt = ["CCCCT"]
+                                          , qual = Just 258.62
+                                          , filt = ["PASS"]
+                                          , info = ["AC=2","AF=1.00","AN=2","DB","DP=11","FS=0.000","HRun=0","HaplotypeScore=41.3338","MQ0=0","MQ=61.94","QD=23.51","set=variant"]
+                                          , format = Just ["GT","AD","DP","GQ","PL"]
+                                          }
+                              , [ ["1/1","6,5","11","14.79","300,15,0"]
+                                ]
+                              )
+
+  describe "Multiple variations parsing" $ do
+    it "should be able to parse multiple variations" $ do
+      testFile <- BS8.lines `fmap` BS.readFile "./res/miller.vcf"
+      let parsedVariations = fmap (parseOnly parseVariation) testFile
+      let correctlyParsedVariations = rights parsedVariations
+      length parsedVariations `shouldBe` length correctlyParsedVariations

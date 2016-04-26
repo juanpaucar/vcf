@@ -2,7 +2,7 @@ module Bio.VCF.Parser.Helpers
 ( tabOrSpace
 , isTab
 , isSpace
-, notSpace
+, notTabOrSpace
 , isNumber
 , isFloatNumber
 , isBase
@@ -21,8 +21,8 @@ isTab c = c == 9
 isSpace :: Word8 -> Bool
 isSpace c = c == 32
 
-notSpace :: Word8 -> Bool
-notSpace c = c /= 32
+notTabOrSpace :: Word8 -> Bool
+notTabOrSpace = not . tabOrSpace
 
 isNumber :: Word8 -> Bool
 isNumber c = c >= 48 && c <= 57
