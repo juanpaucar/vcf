@@ -11,7 +11,7 @@ import Data.ByteString (ByteString)
 
 data VCF = VCF
           { header     :: Header
-          , variations :: [Variation]
+          , variations :: [(Variation, [ByteString])]
           } deriving Show
 
 data Header = Header
@@ -39,6 +39,7 @@ data Variation = Variation
               } deriving (Show, Eq)
 
 newtype Patient = Patient ByteString deriving (Eq, Show)
+
 type InformationField = ByteString
 type FilterField = ByteString
 type FormatField = ByteString
