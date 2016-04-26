@@ -38,7 +38,8 @@ isBase c = c == 65 || c == 97  || -- A or a
            c == 78 || c == 110    -- N or n
 
 isBaseOrDeletion :: Word8 -> Bool
-isBaseOrDeletion c = isBase c || c == 42 || c == 44 -- or '*' and ','
+isBaseOrDeletion c = isBase c || c == 42 || c == 44 || -- or '*' and ','
+                                 c == 60 || c == 62    -- '<' and '>'
 
 endOfLine :: Word8 -> Bool
 endOfLine c = c == 13 || c == 10
