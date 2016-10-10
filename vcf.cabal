@@ -22,7 +22,7 @@ library
                      Bio.VCF.Parser.Helpers
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.8 && <4.9,
+  build-depends:       base >=4.8 && < 5,
                        attoparsec >= 0.13,
                        bytestring
   hs-source-dirs:      src
@@ -33,7 +33,7 @@ test-suite spec
   type        : exitcode-stdio-1.0
   hs-source-dirs : spec
   main-is        : Spec.hs
-  build-depends  : base >=4.8 && <4.9,
+  build-depends  : base >=4.8 && < 5,
                    hspec,
                    hspec-expectations,
                    bytestring,
