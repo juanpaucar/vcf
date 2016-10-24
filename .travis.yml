@@ -1,19 +1,28 @@
-env:
-  matrix:
-    - GHC_VERSION=7.10.1 CABAL_VERSION=1.22
+
+language: c
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - libgmp-dev
+
+cache:
+  directories:
+    - $HOME/.stack
+
+matrix:
+  include:
+  - env: ARGS=""
+  - env: ARGS="--resolver lts-6"
+  - env: ARGS="--resolver lts-7"
+  - env: ARGS="--resolver lts"
 
 before_install:
-  - sudo apt-add-repository -y ppa:hvr/ghc
-  - sudo apt-get update
-  - sudo apt-get install -y ghc-$GHC_VERSION cabal-install-$CABAL_VERSION
-  - export PATH=/opt/ghc/$GHC_VERSION/bin:/opt/cabal/$CABAL_VERSION/bin:$PATH
+- unset CC
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
-install:
-  - cabal update
-  - cabal sandbox init
-  - cabal install --only-dependencies --enable-tests
-
-script:
-  - cabal configure --enable-tests
-  - cabal build
-  - cabal test
+script: stack $ARGS --no-terminal --install-ghc test --haddock --no-haddock-deps
