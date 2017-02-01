@@ -85,10 +85,18 @@ instance ToJSON Patient
 -- newtypes or check for a better way to represent them
 --
 type InformationField = ByteString
+
 type FilterField = ByteString
+
 type FormatField = ByteString
+
 type AlternativeAlleleField = ByteString
+
 type ContigField = ByteString
+
 type SampleField = ByteString
+
 type PedigreeInformation = ByteString
+
 type Genotypes = [ByteString]
+
