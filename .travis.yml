@@ -1,4 +1,3 @@
-
 language: c
 
 sudo: false
@@ -17,6 +16,7 @@ matrix:
   - env: ARGS=""
   - env: ARGS="--resolver lts-6"
   - env: ARGS="--resolver lts-7"
+  - env: ARGS="--resolver lts-8"
   - env: ARGS="--resolver lts"
 
 before_install:
