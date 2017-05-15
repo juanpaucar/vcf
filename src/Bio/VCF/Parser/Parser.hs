@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module Bio.VCF.Parser.Parser
 ( parseMetaInformation
@@ -7,7 +8,7 @@ module Bio.VCF.Parser.Parser
 , parseChrom
 , parsePosition
 , parseID
-, praseRef
+, parseRef
 , parseAlt
 , parseQual
 , parseFilter
@@ -22,6 +23,8 @@ import qualified Data.ByteString as B (ByteString, append)
 import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, split)
 import Control.Applicative (liftA2, (<|>))
 import Data.Attoparsec.ByteString (try, takeWhile1, takeByteString, skipWhile, Parser, string, takeTill)
+import Data.ByteString (ByteString)
+import Data.Bool (bool)
 import Text.Read (readMaybe)
 
 import Bio.VCF.Internal.Types
@@ -41,26 +44,26 @@ parseFormatLine = AC8.char '#' *>
 parsePatients :: Parser [Patient]
 parsePatients = AC8.char '#' *>
                 string "CHROM" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "POS" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "ID" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "REF" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "ALT" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "QUAL" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "FILTER" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "INFO" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
                 string "FORMAT" *>
-                skipWhile tabOrSpace *>
+                skipSeparations *>
 -- TODO use `sepBy` in this part instead of words to gain performance
-                (fmap . fmap) Patient $
-                    BS8.words `fmap` takeTill endOfLine
+                ((fmap . fmap) Patient $
+                    BS8.words `fmap` takeTill endOfLine)
 
 parseChrom :: Parser B.ByteString
 parseChrom = try (string  "<ID>") <|> takeWhile1 notTabOrSpace
@@ -97,31 +100,32 @@ parseFormat = try ((Just . BS8.split ':') `fmap` takeWhile1 notTabOrSpace) <|>
                 pure Nothing
 
 parseGenotypes :: Parser [Genotypes]
-parseGenotypes = ((fmap (BS8.split ':')) . BS8.split ' ') `fmap` takeByteString
+parseGenotypes = try (((fmap (BS8.split ':')) . BS8.split ' ') `fmap` takeByteString) <|>
+                  pure []
 
-parseVariation :: Parser (Variation, [Genotypes])
-parseVariation = do
-  vChrom <- parseChrom
-  skipWhile tabOrSpace
-  vPos <- parsePosition
-  skipWhile tabOrSpace
-  vId <- parseID
-  skipWhile tabOrSpace
-  vRef <- parseRef
-  skipWhile tabOrSpace
-  vAlt <- parseAlt
-  skipWhile tabOrSpace
-  vQual <- parseQual
-  skipWhile tabOrSpace
-  vFilter <- parseFilter
-  skipWhile tabOrSpace
-  vInfo <- parseInformation
-  skipWhile tabOrSpace
-  maybeFormat <- parseFormat
-  let variation = Variation vChrom vPos vId vRef vAlt vQual vFilter vInfo Nothing
-  case maybeFormat of
-    Just formats -> do
-      skipWhile tabOrSpace
-      genotypes <- parseGenotypes
-      return (variation{format = Just formats}, genotypes)
-    Nothing -> return (variation, [])
+parseVariation :: Parser (Variation, Genotypes)
+parseVariation = (,) <$> Variation <*> 
+  parseChrom <*>
+  (skipSeparations *> parsePosition) <*>
+  (skipSeparations *> parseID) <*>
+  (skipSeparations *> parseRef) <*>
+  (skipSeparations *> parseAlt) <*>
+  (skipSeparations *> parseQual) <*>
+  (skipSeparations *> parseFilter) <*>
+  (skipSeparations *> parseInformation) <*>
+  (skipSeparations *> parseFormat) <*>
+  (skipSeparations *> parseGenotypes)
+
+skipSeparations :: Parser ()
+skipSeparations = skipWhile tabOrSpace
+
+{-parseVariation :: Parser (Variation, ByteString) -> Parser (Variation, Genotypes)-}
+{-parseVariation  Parser (Variation{..}, remaining) = undefined-}
+  {-maybeFormat <- parseFormat-}
+  {-let variation = Variation vChrom vPos vId vRef vAlt vQual vFilter vInfo Nothing-}
+  {-case maybeFormat of-}
+    {-Just formats -> do-}
+      {-skipWhile tabOrSpace-}
+      {-genotypes <- parseGenotypes-}
+      {-return (variation{format = Just formats}, genotypes)-}
+    {-Nothing -> return (variation, [])-}
