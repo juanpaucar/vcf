@@ -1,6 +1,21 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Bio.VCF.Parser.Parser where
+module Bio.VCF.Parser.Parser
+( parseMetaInformation
+, parseFormatLine
+, parsePatients
+, parseChrom
+, parsePosition
+, parseID
+, praseRef
+, parseAlt
+, parseQual
+, parseFilter
+, parseInformation
+, parseFormat
+, parseGenotypes
+, parseVariation
+) where
 
 import qualified Data.Attoparsec.ByteString.Char8 as AC8 (notChar, char)
 import qualified Data.ByteString as B (ByteString, append)
@@ -43,9 +58,9 @@ parsePatients = AC8.char '#' *>
                 skipWhile tabOrSpace *>
                 string "FORMAT" *>
                 skipWhile tabOrSpace *>
---TODO use `sepBy` in this part instead of words to gain performance
-                ((fmap . fmap) Patient $
-                    BS8.words `fmap` takeTill endOfLine)
+-- TODO use `sepBy` in this part instead of words to gain performance
+                (fmap . fmap) Patient $
+                    BS8.words `fmap` takeTill endOfLine
 
 parseChrom :: Parser B.ByteString
 parseChrom = try (string  "<ID>") <|> takeWhile1 notTabOrSpace
