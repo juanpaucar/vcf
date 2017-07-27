@@ -5,7 +5,7 @@ module Bio.VCF.Parser.Parser where
 import qualified Data.Attoparsec.ByteString.Char8 as AC8 (notChar, char)
 import qualified Data.ByteString as B (ByteString, append)
 import qualified Data.ByteString.Char8 as BS8 (singleton, words, unpack, split)
-import Control.Applicative (liftA2, (<|>))
+import Control.Applicative (liftA2, (<|>), (<$>))
 import Data.Attoparsec.ByteString (try, takeWhile1, takeByteString, skipWhile, Parser, string, takeTill)
 import Text.Read (readMaybe)
 
@@ -44,8 +44,7 @@ parsePatients = AC8.char '#' *>
                 string "FORMAT" *>
                 skipWhile tabOrSpace *>
 --TODO use `sepBy` in this part instead of words to gain performance
-                ((fmap . fmap) Patient $
-                    BS8.words `fmap` takeTill endOfLine)
+                (fmap . fmap) Patient (BS8.words <$> takeTill endOfLine)
 
 parseChrom :: Parser B.ByteString
 parseChrom = try (string  "<ID>") <|> takeWhile1 notTabOrSpace
@@ -53,36 +52,36 @@ parseChrom = try (string  "<ID>") <|> takeWhile1 notTabOrSpace
 {-We don't care about the additional characters, it should be delegated to
  - the whole parser-}
 parsePosition :: Parser Int
-parsePosition =  (read . BS8.unpack) `fmap` takeWhile1 isNumber
+parsePosition =  read . BS8.unpack <$> takeWhile1 isNumber
 
 parseID :: Parser [B.ByteString]
-parseID = (BS8.split ':') `fmap` takeWhile1 notTabOrSpace
+parseID = BS8.split ':' <$> takeWhile1 notTabOrSpace
 
 parseRef :: Parser B.ByteString
 parseRef = takeWhile1 isBase
 
 parseAlt :: Parser [B.ByteString]
-parseAlt = try (makeList `fmap` string "<ID>") <|>
-           (BS8.split ',') `fmap` takeWhile1 isBaseOrDeletion
-  where makeList x = x : []
+parseAlt = try (makeList <$> string "<ID>") <|>
+           BS8.split ',' <$> takeWhile1 isBaseOrDeletion
+  where makeList x = [x]
 
 parseQual :: Parser (Maybe Float)
-parseQual = (readMaybe . BS8.unpack) `fmap` takeWhile1 isFloatNumber
+parseQual = readMaybe . BS8.unpack <$> takeWhile1 isFloatNumber
 
 parseFilter :: Parser [B.ByteString]
-parseFilter = try (makeList `fmap` string "PASS") <|>
-              (BS8.split ';') `fmap` takeWhile1 notTabOrSpace
-  where makeList x = x : []
+parseFilter = try (makeList <$> string "PASS") <|>
+              BS8.split ';' <$> takeWhile1 notTabOrSpace
+  where makeList x = [x]
 
 parseInformation :: Parser [B.ByteString]
-parseInformation = (BS8.split ';') `fmap` takeWhile1 notTabOrSpace
+parseInformation = BS8.split ';' <$> takeWhile1 notTabOrSpace
 
 parseFormat :: Parser (Maybe [B.ByteString])
-parseFormat = try ((Just . BS8.split ':') `fmap` takeWhile1 notTabOrSpace) <|>
+parseFormat = try ((Just . BS8.split ':') <$> takeWhile1 notTabOrSpace) <|>
                 pure Nothing
 
 parseGenotypes :: Parser [Genotypes]
-parseGenotypes = ((fmap (BS8.split ':')) . BS8.split ' ') `fmap` takeByteString
+parseGenotypes = fmap (BS8.split ':') . BS8.split ' ' <$> takeByteString
 
 parseVariation :: Parser (Variation, [Genotypes])
 parseVariation = do
