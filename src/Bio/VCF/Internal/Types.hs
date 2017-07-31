@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
+{-# OPTIONS_GHC -funbox-strict-fields #-}
+
 module Bio.VCF.Internal.Types
 ( VCF(..)
 , Header(..)
@@ -31,8 +33,8 @@ instance ToJSON ByteString where
 -------------------------------------------------------------------------------
 
 data VCF = VCF
-          { header     :: Header
-          , variations :: [(Variation, [ByteString])]
+          { header     :: !Header
+          , variations :: ![(Variation, [ByteString])]
           } deriving (Eq, Generic, Show)
 
 instance FromJSON VCF
@@ -41,15 +43,15 @@ instance ToJSON VCF
 
 
 data Header = Header
-              { fileFormat              :: ByteString
-              , informationFields       :: [InformationField]
-              , filterFields            :: [FilterField]
-              , formatFields            :: [FormatField]
-              , alternativeAlleleFields :: [AlternativeAlleleField]
-              , assemblyField           :: ByteString
-              , contigFields            :: [ContigField]
-              , sampleFields            :: [SampleField]
-              , pedigreeFields          :: PedigreeInformation
+              { fileFormat              :: !ByteString
+              , informationFields       :: ![InformationField]
+              , filterFields            :: ![FilterField]
+              , formatFields            :: ![FormatField]
+              , alternativeAlleleFields :: ![AlternativeAlleleField]
+              , assemblyField           :: !ByteString
+              , contigFields            :: ![ContigField]
+              , sampleFields            :: ![SampleField]
+              , pedigreeFields          :: !PedigreeInformation
               } deriving (Eq, Generic, Show)
 
 instance FromJSON Header
@@ -58,15 +60,15 @@ instance ToJSON Header
 
 
 data Variation = Variation
-              { chrom  :: ByteString
-              , pos    :: Int
-              , idx    :: [ByteString]
-              , ref    :: ByteString
-              , alt    :: [ByteString]
-              , qual   :: Maybe Float
-              , filt   :: [ByteString]
-              , info   :: [ByteString]
-              , format :: Maybe [ByteString]
+              { chrom  :: !ByteString
+              , pos    :: !Int
+              , idx    :: ![ByteString]
+              , ref    :: !ByteString
+              , alt    :: ![ByteString]
+              , qual   :: !(Maybe Float)
+              , filt   :: ![ByteString]
+              , info   :: ![ByteString]
+              , format :: !(Maybe [ByteString])
               } deriving (Eq, Generic, Show)
 
 instance FromJSON Variation

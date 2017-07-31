@@ -13,7 +13,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  ghc-options : -Wall -O4 -fno-warn-orphans
+  ghc-options : -Wall -O2 -optc-03 -optc-ffast-math -funfolding-use-threshold=16 -fno-warn-orphans
   exposed-modules:  Bio.VCF.Internal.Types,
                      Bio.VCF.Parser.Parser,
                      Bio.VCF.Parser.Helpers
