@@ -1,5 +1,5 @@
 name:                vcf
-version:             0.1.1.0
+version:             0.9.0
 synopsis:            A package to parse VCF files inspired in similar python libraries
 -- description:         
 license:             MIT
@@ -43,4 +43,3 @@ test-suite spec
 source-repository head
   type: git
   location: https://github.com/juanpaucar/vcf
-
