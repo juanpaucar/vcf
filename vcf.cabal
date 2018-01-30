@@ -1,5 +1,5 @@
 name:                vcf
-version:             0.9.0
+version:             0.10.0
 synopsis:            A package to parse VCF files inspired in similar python libraries
 -- description:         
 license:             MIT

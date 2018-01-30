@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Bio.VCF.Parser.Parser where
 
@@ -43,8 +44,7 @@ parsePatients = AC8.char '#' *>
                 skipWhile tabOrSpace *>
                 string "FORMAT" *>
                 skipWhile tabOrSpace *>
---TODO use `sepBy` in this part instead of words to gain performance
-                (fmap . fmap) Patient (BS8.words <$> takeTill endOfLine)
+                ((fmap Patient . BS8.words) <$> takeTill endOfLine)
 
 parseChrom :: Parser B.ByteString
 parseChrom = try (string  "<ID>") <|> takeWhile1 notTabOrSpace
@@ -63,7 +63,7 @@ parseRef = takeWhile1 isBase
 parseAlt :: Parser [B.ByteString]
 parseAlt = try (makeList <$> string "<ID>") <|>
            BS8.split ',' <$> takeWhile1 isBaseOrDeletion
-  where makeList x = [x]
+  where makeList = pure
 
 parseQual :: Parser (Maybe Float)
 parseQual = readMaybe . BS8.unpack <$> takeWhile1 isFloatNumber
@@ -71,7 +71,7 @@ parseQual = readMaybe . BS8.unpack <$> takeWhile1 isFloatNumber
 parseFilter :: Parser [B.ByteString]
 parseFilter = try (makeList <$> string "PASS") <|>
               BS8.split ';' <$> takeWhile1 notTabOrSpace
-  where makeList x = [x]
+  where makeList = pure
 
 parseInformation :: Parser [B.ByteString]
 parseInformation = BS8.split ';' <$> takeWhile1 notTabOrSpace
@@ -85,27 +85,27 @@ parseGenotypes = fmap (BS8.split ':') . BS8.split ' ' <$> takeByteString
 
 parseVariation :: Parser (Variation, [Genotypes])
 parseVariation = do
-  vChrom <- parseChrom
+  chrom <- parseChrom
   skipWhile tabOrSpace
-  vPos <- parsePosition
+  pos <- parsePosition
   skipWhile tabOrSpace
-  vId <- parseID
+  idx <- parseID
   skipWhile tabOrSpace
-  vRef <- parseRef
+  ref <- parseRef
   skipWhile tabOrSpace
-  vAlt <- parseAlt
+  alt <- parseAlt
   skipWhile tabOrSpace
-  vQual <- parseQual
+  qual <- parseQual
   skipWhile tabOrSpace
-  vFilter <- parseFilter
+  filt <- parseFilter
   skipWhile tabOrSpace
-  vInfo <- parseInformation
+  info <- parseInformation
   skipWhile tabOrSpace
-  maybeFormat <- parseFormat
-  let variation = Variation vChrom vPos vId vRef vAlt vQual vFilter vInfo Nothing
-  case maybeFormat of
-    Just formats -> do
-      skipWhile tabOrSpace
-      genotypes <- parseGenotypes
-      return (variation{format = Just formats}, genotypes)
-    Nothing -> return (variation, [])
+  format <- parseFormat
+  (,) <$> pure Variation{..}
+      <*> getGenotypes format
+    where
+      getGenotypes Nothing = pure []
+      getGenotypes (Just _) =
+        skipWhile tabOrSpace *>
+        parseGenotypes
